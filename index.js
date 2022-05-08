@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
-// const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -34,7 +34,7 @@ function verifyJWT(req, res, next) {
 
 
 
-const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.PASS_WORD}@cluster0.h16cz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://Sabrina:JYLs4aETFIlHF07k@cluster0.h16cz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -45,7 +45,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 async function run() {
     try {
         await client.connect();
-        const serviceCollection = client.db('assignment11').collection('item');
+        const itemCollection = client.db('assignment11').collection('item');
 
 
         //AUTH
@@ -59,59 +59,59 @@ async function run() {
 
 
 
-        //services API
+
         //for all data
         app.get('/item', async (req, res) => {
             const query = {};
-            const cursor = serviceCollection.find(query);
-            const services = await cursor.toArray();
-            res.send(services);
+            const cursor = itemCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
         });
 
         //for single data
         app.get('/item/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
-            const service = await serviceCollection.findOne(query);
-            res.send(service);
+            const item = await itemCollection.findOne(query);
+            res.send(item);
 
         })
 
         //post
         app.post('/item', async (req, res) => {
-            const newService = req.body;
-            const result = await serviceCollection.insertOne(newService);
+            const newItem = req.body;
+            const result = await itemCollection.insertOne(newItem);
             res.send(result);
 
         })
-        //delete
-        app.delete('/item/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: ObjectId(id) };
-            const result = await serviceCollection.deleteOne(query);
-            res.send(result);
-        })
+        // //delete
+        // app.delete('/item/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: ObjectId(id) };
+        //     const result = await serviceCollection.deleteOne(query);
+        //     res.send(result);
+        // })
 
 
-        //order collection api
 
 
-        //show in order history-----
-        app.get('/manage', verifyJWT, async (req, res) => {
 
-            const email = req.query.email;
-            const query = { email: email };
-            const cursor = orderCollection.find(query);
-            const orders = await cursor.toArray();
-            res.send(orders);
-        })
+        // //show in order history-----
+        // app.get('/manage', verifyJWT, async (req, res) => {
 
-        //save in mongodb -----
-        app.post('/manage', async (req, res) => {
-            const order = req.body;
-            const result = await orderCollection.insertOne(order);
-            res.send(result);
-        })
+        //     const email = req.query.email;
+        //     const query = { email: email };
+        //     const cursor = orderCollection.find(query);
+        //     const orders = await cursor.toArray();
+        //     res.send(orders);
+        // })
+
+        // //save in mongodb -----
+        // app.post('/manage', async (req, res) => {
+        //     const order = req.body;
+        //     const result = await orderCollection.insertOne(order);
+        //     res.send(result);
+        // })
     }
     finally {
 
