@@ -34,7 +34,7 @@ function verifyJWT(req, res, next) {
 
 
 
-const uri = `mongodb+srv://Sabrina:JYLs4aETFIlHF07k@cluster0.h16cz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.PASS_WORD}@cluster0.h16cz.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -46,6 +46,7 @@ async function run() {
     try {
         await client.connect();
         const itemCollection = client.db('assignment11').collection('item');
+        const itemCollection1 = client.db('assignment11').collection('myitem');
 
 
         //AUTH
@@ -57,10 +58,7 @@ async function run() {
             res.send({ accessToken });
         })
 
-
-
-
-        //for all data
+        //show all data-----------------------------
         app.get('/item', async (req, res) => {
             const query = {};
             const cursor = itemCollection.find(query);
@@ -68,7 +66,22 @@ async function run() {
             res.send(items);
         });
 
-        //for single data
+        app.get('/myitem', async (req, res) => {
+            const query = {};
+            const cursor = itemCollection1.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        app.get('/myitem/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { email: email };
+            const item = await itemCollection1.findOne(query);
+            res.send(item);
+
+        })
+
+        //show single data---------------------------
         app.get('/item/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
@@ -77,22 +90,32 @@ async function run() {
 
         })
 
-        //post
+        //post---------------------------
         app.post('/item', async (req, res) => {
             const newItem = req.body;
             const result = await itemCollection.insertOne(newItem);
             res.send(result);
 
         })
-        // //delete
-        // app.delete('/item/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: ObjectId(id) };
-        //     const result = await serviceCollection.deleteOne(query);
-        //     res.send(result);
-        // })
 
-        //update,,,
+
+        app.post('/myitem', async (req, res) => {
+            const newItem = req.body;
+            const result = await itemCollection1.insertOne(newItem);
+            res.send(result);
+
+        })
+
+
+        //delete----------------------
+        app.delete('/item/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await itemCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        //update-----------------------
         app.put('/item/:id', async (req, res) => {
             const id = req.params.id;
             const updateItem = req.body;
@@ -123,12 +146,7 @@ async function run() {
         //     res.send(orders);
         // })
 
-        // //save in mongodb -----
-        // app.post('/manage', async (req, res) => {
-        //     const order = req.body;
-        //     const result = await orderCollection.insertOne(order);
-        //     res.send(result);
-        // })
+
     }
     finally {
 
